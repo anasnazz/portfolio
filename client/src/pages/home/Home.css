@@ -21,7 +21,7 @@
     z-index: 1;
     text-align: left;
     position: relative;
-    top: 70px;
+    top: 80px;
 }
 
 
@@ -68,6 +68,10 @@
     z-index: 2;
     position: relative;
     overflow: hidden;
+}
+
+.white-text {
+    color: #fff;
 }
 
 .hero-picture {
