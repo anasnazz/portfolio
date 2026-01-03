@@ -2,8 +2,9 @@
 import Box from "@mui/material/Box";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
+import SectionBento from "@/sections/home/SectionBento";
 
-const SectionHero = dynamic(() => import("@SectionHero"), { ssr: false });
+const SectionHero = dynamic(() => import("@/sections/home/SectionHero"), { ssr: false });
 
 export default function Home() {
 
@@ -19,7 +20,7 @@ export default function Home() {
     setTimeout(() => {
       window.scrollTo({
         top: navbarHeight,
-        behavior: "instant" 
+        behavior: "instant"
       });
     }, 10);
 
@@ -40,8 +41,16 @@ export default function Home() {
         }}
       >
         <SectionHero />
+        <SectionBento
+          textAutoHide={true}
+          enableStars={true}
+          enableSpotlight={true}
+          enableBorderGlow={true}
+          enableTilt={false}
+          enableMagnetism={false}
+          clickEffect={true}
+        />
       </Box>
-      {/* <Box sx={{ height: "600vh" }} /> */}
     </Box>
   );
 }

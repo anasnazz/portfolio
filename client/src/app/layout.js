@@ -1,7 +1,6 @@
 import ThemeRegistry from "@/components/themeRegistry";
 import "./globals.css";
 import NavbarLoader from "@/components/NavbarLoader";
-import DevHumorDialog from "@/components/DevHumorDialog";
 
 export const metadata = {
   title: "MD.AT - Portfolio",
@@ -13,7 +12,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <ThemeRegistry>
-          <DevHumorDialog />
           <NavbarLoader />
           <main>{children}</main>
         </ThemeRegistry>
