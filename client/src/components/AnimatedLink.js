@@ -39,7 +39,7 @@ export default function AnimatedLink({ href, children }) {
         fontSize: { xs: "20px", md: "24px" },
         fontWeight: 500,
         lineHeight: 1.2,
-        color: "#000",
+        color: "#000000ff",
         padding: "5px 0",
         cursor: "pointer",
         textDecoration: "none",

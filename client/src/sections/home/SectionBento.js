@@ -2,8 +2,9 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { gsap } from "gsap";
-import { Container } from "@mui/material";
+import { Container, Box, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
+import CobeGlobe from "@CobeGlobe";
 
 // Icons
 import PublicIcon from '@mui/icons-material/Public'; 
@@ -41,7 +42,7 @@ const cardData = [
     area: "work",
     type: "work",
     title: "Let's work together on your next project",
-    email: "hello@anas.design"
+    email: "hello@mohdanast.com"
   },
   {
     id: "scoop",
@@ -72,15 +73,14 @@ const createParticleElement = (x, y, color = DEFAULT_GLOW_COLOR) => {
 
 const ParticleCard = ({
   children,
-  className = "",
   disableAnimations = false,
-  style,
+  sx = {},
   particleCount = DEFAULT_PARTICLE_COUNT,
   glowColor = DEFAULT_GLOW_COLOR,
   enableTilt = true,
-  clickEffect = false,
-  enableMagnetism = false,
+  clickEffect = true,
   url,
+  gridArea, // New prop to handle grid placement
 }) => {
   const cardRef = useRef(null);
   const particlesRef = useRef([]);
@@ -88,7 +88,6 @@ const ParticleCard = ({
   const isHoveredRef = useRef(false);
   const memoizedParticles = useRef([]);
   const particlesInitialized = useRef(false);
-  const magnetismAnimationRef = useRef(null);
 
   const initializeParticles = useCallback(() => {
     if (particlesInitialized.current || !cardRef.current) return;
@@ -102,7 +101,6 @@ const ParticleCard = ({
   const clearAllParticles = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
-    magnetismAnimationRef.current?.kill();
     particlesRef.current.forEach((particle) => {
       gsap.to(particle, {
         scale: 0,
@@ -160,26 +158,20 @@ const ParticleCard = ({
     const handleMouseEnter = () => {
       isHoveredRef.current = true;
       animateParticles();
-      // Reveal spotlight immediately on enter
       element.style.setProperty('--opacity', '1');
-      
-      if (enableTilt) {
-        gsap.to(element, { rotateX: 2, rotateY: 2, duration: 0.3, ease: "power2.out", transformPerspective: 1000 });
-      }
     };
 
     const handleMouseLeave = () => {
       isHoveredRef.current = false;
       clearAllParticles();
-      // Hide spotlight on leave
       element.style.setProperty('--opacity', '0');
 
-      if (enableTilt) {
-        gsap.to(element, { rotateX: 0, rotateY: 0, duration: 0.3, ease: "power2.out" });
-      }
-      if (enableMagnetism) {
-        gsap.to(element, { x: 0, y: 0, duration: 0.3, ease: "power2.out" });
-      }
+      gsap.to(element, { 
+        rotateX: 0, 
+        rotateY: 0, 
+        duration: 0.3, 
+        ease: "power2.out" 
+      });
     };
 
     const handleMouseMove = (e) => {
@@ -187,18 +179,12 @@ const ParticleCard = ({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      // Update CSS variables for the spotlight
       element.style.setProperty('--x', `${x}px`);
       element.style.setProperty('--y', `${y}px`);
 
-      if (!enableTilt && !enableMagnetism) return;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
       if (enableTilt) {
-        const rotateX = ((y - centerY) / centerY) * -3; 
-        const rotateY = ((x - centerX) / centerX) * 3;
+        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -3; 
+        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 3;
         gsap.to(element, { rotateX, rotateY, duration: 0.1, ease: "power2.out", transformPerspective: 1000 });
       }
     };
@@ -231,297 +217,247 @@ const ParticleCard = ({
     element.addEventListener("click", handleClick);
 
     return () => {
-      isHoveredRef.current = false;
       element.removeEventListener("mouseenter", handleMouseEnter);
       element.removeEventListener("mouseleave", handleMouseLeave);
       element.removeEventListener("mousemove", handleMouseMove);
       element.removeEventListener("click", handleClick);
       clearAllParticles();
     };
-  }, [animateParticles, clearAllParticles, disableAnimations, enableTilt, enableMagnetism, clickEffect, glowColor]);
+  }, [animateParticles, clearAllParticles, disableAnimations, enableTilt, clickEffect, glowColor]);
 
-  const Wrapper = url ? Link : "div";
+  const Wrapper = url ? Link : Box;
   const wrapperProps = url ? { href: url, target: "_blank" } : {};
 
   return (
-    <Wrapper ref={cardRef} className={`${className} relative overflow-hidden group`} style={{ ...style, position: "relative", overflow: "hidden" }} {...wrapperProps}>
-      {/* Spotlight Overlay Layer */}
-      <div className="spotlight-overlay" />
+    <Box
+      ref={cardRef}
+      component={Wrapper}
+      {...wrapperProps}
+      sx={{
+        gridArea: gridArea, // Applied from prop
+        position: "relative",
+        overflow: "hidden",
+        bgcolor: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "24px",
+        p: 3,
+        display: "flex",
+        flexDirection: "column",
+        transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+        cursor: url ? "pointer" : "default",
+        textDecoration: "none",
+        color: "inherit",
+        
+        // --- Converted CSS Pseudo-elements & Hover States ---
+        '&:hover': {
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+            borderColor: `rgba(${glowColor}, 0.5)`,
+        },
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            padding: '2px',
+            background: `radial-gradient(400px circle at var(--x, 50%) var(--y, 50%), rgba(${glowColor}, 0.3) 0%, transparent 60%)`,
+            borderRadius: 'inherit',
+            // Mask composite logic for border glow
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+            pointerEvents: 'none',
+            opacity: 'var(--opacity, 0)',
+            transition: 'opacity 0.3s ease',
+            zIndex: 1,
+        },
+        ...sx
+      }}
+    >
+      <Box 
+        className="spotlight-overlay"
+        sx={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            background: `radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(${glowColor}, 0.08), transparent 40%)`,
+            opacity: 'var(--opacity, 0)',
+            transition: 'opacity 0.3s ease',
+            zIndex: 0,
+        }} 
+      />
       {children}
-    </Wrapper>
+    </Box>
   );
 };
 
-const BentoCardGrid = ({ children, gridRef }) => (
-  <div className="bento-section w-full select-none relative" ref={gridRef}>
-    {children}
-  </div>
+// --- Sub-Components (Unchanged) ---
+const CollabContent = ({ card }) => (
+  <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', zIndex: 10, pointerEvents: 'none' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, color: '#9333ea', opacity: 0.8 }}>
+      <HandshakeIcon fontSize="small" />
+      <Typography variant="caption" sx={{ fontWeight: 800, letterSpacing: 1.5 }}>{card.title}</Typography>
+    </Box>
+    <Typography variant="h5" sx={{ fontWeight: 500, lineHeight: 1.2, color: '#1f2937' }}>
+      {card.content}
+    </Typography>
+  </Box>
 );
 
-const useMobileDetection = () => {
+const TechContent = ({ card }) => (
+  <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', textAlign: 'center', zIndex: 10, pointerEvents: 'none' }}>
+    <Typography variant="h5" sx={{ fontWeight: 500, lineHeight: 1.2, mb: 4, mt: 1, px: 2 }}>
+      {card.title.split("technologies")[0]}
+      <Box component="span" sx={{ color: '#9333ea', display: 'block' }}>technologies</Box>
+    </Typography>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1, mb: 4 }}>
+       {['Notion', 'Markdown', 'Node.js', 'Redis', 'Mongo', 'Prisma', 'Drizzle', 'Git', 'GitHub'].map(tag => (
+          <Box key={tag} sx={{ px: 1, py: 0.5, bgcolor: '#f3f4f6', borderRadius: '6px', fontSize: '10px', fontWeight: 700, color: '#4b5563', border: '1px solid #e5e7eb' }}>
+             {tag}
+          </Box>
+       ))}
+    </Box>
+    <Box sx={{ mt: 'auto', position: 'relative', width: '100%', height: 120, bgcolor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '12px 12px 0 0', overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, p: 1, borderBottom: '1px solid #f3f4f6' }}>
+            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#fca5a5' }} />
+            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#fde047' }} />
+            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#86efac' }} />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', pb: 3 }}>
+            <Box textAlign="center">
+                <Typography sx={{ fontSize: 10, fontWeight: 800, color: '#9ca3af', mb: 0.5 }}>Websites that</Typography>
+                <Typography sx={{ fontSize: 18, fontWeight: 800, color: '#9333ea' }}>Impact.</Typography>
+            </Box>
+        </Box>
+    </Box>
+  </Box>
+);
+
+const GlobeContent = ({ card }) => (
+  <Box sx={{ 
+    height: '100%', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'center', 
+    textAlign: 'center', 
+    pt: 3, 
+    zIndex: 10,
+    position: 'relative'
+  }}>
+    <Typography variant="h6" sx={{ fontWeight: 500, mb: 1, pointerEvents: 'none' }}>
+      I&apos;m very flexible with time<br/>
+      <Box component="span" sx={{ color: '#9333ea' }}>zone communications</Box>
+    </Typography>
+
+    <Box sx={{ display: 'flex', gap: 1, mb: 2, pointerEvents: 'none' }}>
+       {['🇬🇧 UK', '🇮🇳 India', '🇺🇸 USA'].map(country => (
+         <Box key={country} sx={{ fontSize: '10px', fontWeight: 800, px: 1, py: 0.5, bgcolor: country.includes('India') ? '#f0fdf4' : '#f3f4f6', color: country.includes('India') ? '#15803d' : 'inherit', border: '1px solid', borderColor: country.includes('India') ? '#bbf7d0' : '#e5e7eb', borderRadius: 1 }}>
+            {country}
+         </Box>
+       ))}
+    </Box>
+
+    <Box sx={{ 
+      position: 'absolute', 
+      bottom: '-50%', 
+      width: '150%', 
+      height: '450px', 
+      display: 'flex', 
+      justifyContent: 'center',
+      pointerEvents: 'auto', 
+      overflow: 'hidden'
+    }}>
+       <CobeGlobe />
+    </Box>
+
+    <Box sx={{ position: 'absolute', bottom: 16, left: 16, textAlign: 'left', pointerEvents: 'none', zIndex: 2 }}>
+       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#9ca3af', fontSize: 10, fontWeight: 800 }}>
+           <PublicIcon sx={{ fontSize: 12 }} /> REMOTE
+       </Box>
+       <Typography sx={{ fontSize: 14, fontWeight: 800, color: '#1f2937' }}>India</Typography>
+    </Box>
+  </Box>
+);
+
+// --- Main Section Component ---
+const SectionBento = ({ glowColor = DEFAULT_GLOW_COLOR }) => {
   const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-  return isMobile;
-};
-
-// --- Sub-Components ---
-const CollabContent = ({ card }) => (
-  <div className="flex flex-col justify-end h-full relative z-10 p-2 pointer-events-none">
-    <div className="flex items-center gap-2 mb-3 text-purple-600 opacity-80">
-      <HandshakeIcon fontSize="small" />
-      <span className="text-[10px] font-bold uppercase tracking-widest">{card.title}</span>
-    </div>
-    <p className="text-xl font-medium leading-tight text-gray-800">
-      {card.content}
-    </p>
-  </div>
-);
-
-const TechContent = ({ card }) => (
-  <div className="flex flex-col h-full relative z-10 p-2 text-center pointer-events-none">
-    <h3 className="text-xl font-medium leading-tight mb-8 mt-2 mx-auto max-w-[80%]">
-      {card.title.split("technologies")[0]}
-      <span className="text-purple-600 block">technologies</span>
-    </h3>
-    
-    <div className="flex flex-wrap justify-center gap-2 mb-8">
-       {['Notion', 'Markdown', 'Node.js', 'Redis', 'Mongo', 'Prisma', 'Drizzle', 'Git', 'GitHub'].map(tag => (
-          <span key={tag} className="px-2 py-1 bg-gray-100 rounded-md text-[10px] font-bold text-gray-600 border border-gray-200">
-             {tag}
-          </span>
-       ))}
-    </div>
-
-    <div className="mt-auto relative w-full h-32 bg-gray-50 border border-gray-200 rounded-t-xl overflow-hidden mx-auto shadow-sm">
-        <div className="flex gap-1 p-2 border-b border-gray-100">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-300"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-yellow-300"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-green-300"></div>
-        </div>
-        <div className="flex items-center justify-center h-full pb-6">
-            <div className="text-center">
-                <span className="text-xs font-bold text-gray-400 block mb-1">Websites that</span>
-                <span className="text-lg font-bold text-purple-600">Impact.</span>
-            </div>
-        </div>
-    </div>
-  </div>
-);
-
-const GlobeContent = ({ card }) => (
-  <div className="flex flex-col items-center text-center h-full relative z-10 p-2 pt-6 pointer-events-none">
-    <h3 className="text-lg font-medium leading-tight mb-4">
-      I&apos;m very flexible with time<br/>
-      <span className="text-purple-600">zone communications</span>
-    </h3>
-    
-    <div className="flex gap-3 mb-8">
-       <span className="text-xs font-bold px-2 py-1 bg-gray-100 rounded border border-gray-200">🇬🇧 UK</span>
-       <span className="text-xs font-bold px-2 py-1 bg-green-50 text-green-700 rounded border border-green-200">🇮🇳 India</span>
-       <span className="text-xs font-bold px-2 py-1 bg-gray-100 rounded border border-gray-200">🇺🇸 USA</span>
-    </div>
-
-    <div className="mt-auto relative w-full h-40 flex items-end justify-center overflow-hidden opacity-30">
-       <PublicIcon sx={{ fontSize: 220, transform: 'translateY(60px)', color: '#8400ff' }} />
-    </div>
-    
-    <div className="absolute bottom-4 left-4 text-left">
-       <div className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-           <PublicIcon sx={{ fontSize: 12 }} /> Remote
-       </div>
-       <div className="text-sm font-bold text-gray-800">India</div>
-    </div>
-  </div>
-);
-
-const WorkContent = ({ card }) => (
-  <div className="flex flex-col items-center justify-center h-full relative z-10 p-2 text-center pointer-events-none">
-    <h3 className="text-lg font-medium leading-tight mb-4">
-        Let&apos;s work together<br/>on your next project
-    </h3>
-    <div className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-xs font-bold cursor-pointer pointer-events-auto hover:bg-gray-800 transition-all">
-       <EmailIcon sx={{ fontSize: 14 }} /> {card.email}
-    </div>
-  </div>
-);
-
-const ScoopContent = ({ card }) => (
-  <div className="flex flex-col justify-end h-full relative z-10 p-2 pointer-events-none">
-    <div className="flex items-center gap-2 mb-1 text-gray-400 opacity-60">
-       <DashboardIcon fontSize="small" />
-       <span className="text-[10px] font-bold uppercase tracking-widest">{card.title}</span>
-    </div>
-    <p className="text-base font-medium text-gray-700">
-       {card.content}
-    </p>
-  </div>
-);
-
-// --- Main Component ---
-
-const SectionBento = ({
-  enableStars = true,
-  enableBorderGlow = true,
-  disableAnimations = false,
-  particleCount = DEFAULT_PARTICLE_COUNT,
-  enableTilt = true,
-  glowColor = DEFAULT_GLOW_COLOR,
-  clickEffect = true,
-  enableMagnetism = true,
-}) => {
-  const gridRef = useRef(null);
-  const isMobile = useMobileDetection();
-  const shouldDisableAnimations = disableAnimations || isMobile;
 
   return (
-    <Container
-      maxWidth={false}
-      sx={{
-        maxWidth: "1170px",
-        marginLeft: "auto",
-        marginRight: "auto",
-        padding: { xs: "3rem 20px", md: "1.5rem 20px" },
-        zIndex: 0,
-      }}
-    >
-      <style>
-        {`
-          .bento-section {
-            --glow-color: ${glowColor};
-            --border-color: #e5e7eb; 
-            --background-card: #ffffff; 
-            --text-main: #000000; 
-            --text-secondary: #4b5563; 
-          }
-          
-          /* CSS Grid Layout (Hydration Safe) */
-          .card-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-auto-rows: minmax(200px, auto);
-            gap: 16px;
-            width: 100%;
-            grid-template-areas:
-              "collab"
-              "tech"
-              "globe"
-              "work"
-              "scoop";
-          }
-          
-          @media (min-width: 1024px) {
-            .card-grid {
-              grid-template-columns: repeat(3, 1fr); 
-              grid-template-rows: 240px 240px 180px; 
-              gap: 20px;
-              grid-template-areas: 
-                "collab collab tech"
-                "globe  work   tech"
-                "globe  scoop  scoop";
-            }
-          }
-
-          @media (min-width: 600px) and (max-width: 1023px) {
-            .card-grid {
-              grid-template-columns: 1fr 1fr;
-              grid-auto-rows: minmax(220px, auto);
-              grid-template-areas:
-                "collab collab"
-                "tech   tech"
-                "globe  work"
-                "scoop  scoop";
-            }
-          }
-
-          .area-collab { grid-area: collab; }
-          .area-tech   { grid-area: tech; }
-          .area-globe  { grid-area: globe; }
-          .area-work   { grid-area: work; }
-          .area-scoop  { grid-area: scoop; }
-          
-          /* --- The Spotlight Effect --- */
-          .spotlight-overlay {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background: radial-gradient(
-              600px circle at var(--x, 50%) var(--y, 50%), 
-              rgba(${glowColor}, 0.08), 
-              transparent 40%
-            );
-            opacity: var(--opacity, 0);
-            transition: opacity 0.3s ease;
-            z-index: 0;
-          }
-
-          .card--border-glow::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            padding: 2px; 
-            background: radial-gradient(400px circle at var(--x, 50%) var(--y, 50%),
-                rgba(${glowColor}, 0.3) 0%,
-                transparent 60%);
-            border-radius: inherit;
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-            pointer-events: none;
-            opacity: var(--opacity, 0); /* Only show on hover */
-            transition: opacity 0.3s ease;
-            z-index: 1;
-          }
-          
-          .card--border-glow:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
-            border-color: rgba(${glowColor}, 0.5);
-          }
-        `}
-      </style>
-
-      <BentoCardGrid gridRef={gridRef}>
-        <div className="card-grid">
-          {cardData.map((card, index) => {
-            const baseClassName = `card flex flex-col relative p-6 rounded-[24px] border border-solid font-light overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-1 area-${card.area} ${
-              enableBorderGlow ? "card--border-glow" : ""
-            }`;
-
-            const cardStyle = {
-               backgroundColor: "var(--background-card)",
-               borderColor: "var(--border-color)",
-               color: "var(--text-main)",
-            };
-
-            return (
-              <ParticleCard
-                key={index}
-                className={baseClassName}
-                style={cardStyle}
-                disableAnimations={shouldDisableAnimations}
-                particleCount={particleCount}
-                glowColor={glowColor}
-                enableTilt={enableTilt}
-                clickEffect={clickEffect}
-                enableMagnetism={enableMagnetism}
-                url={card.url}
-              >
-                {/* Render Specific Content */}
-                {card.type === 'collab' && <CollabContent card={card} />}
-                {card.type === 'tech' && <TechContent card={card} />}
-                {card.type === 'globe' && <GlobeContent card={card} />}
-                {card.type === 'work' && <WorkContent card={card} />}
-                {card.type === 'scoop' && <ScoopContent card={card} />}
-              </ParticleCard>
-            );
-          })}
-        </div>
-      </BentoCardGrid>
+    <Container maxWidth={false} sx={{ maxWidth: "1170px", py: { xs: 6, md: 3 }, px: 2 }}>
+      {/* MUI Grid Layout Replacement:
+         Using Box with responsive grid props instead of vanilla CSS Grid + Media Queries 
+      */}
+      <Box sx={{
+        display: 'grid',
+        gap: '16px',
+        // Responsive Columns
+        gridTemplateColumns: {
+            xs: '1fr',
+            sm: '1fr 1fr', // Matches min-width 600px
+            lg: 'repeat(3, 1fr)' // Matches min-width 1024px ~ roughly lg breakpoint
+        },
+        // Responsive Rows (Only defined for Large to match specific pixel heights)
+        gridTemplateRows: {
+            lg: '240px 240px 180px' 
+        },
+        // Responsive Areas
+        gridTemplateAreas: {
+            xs: `
+                "collab" 
+                "tech" 
+                "globe" 
+                "scoop"
+                "work" 
+            `,
+            sm: `
+                "collab collab" 
+                "tech tech" 
+                "globe work" 
+                "scoop scoop"
+            `,
+            lg: `
+                "collab collab tech" 
+                "globe work tech" 
+                "globe scoop scoop"
+            `
+        }
+      }}>
+        {cardData.map((card) => (
+          <ParticleCard 
+            key={card.id} 
+            gridArea={card.area} // Passing area to sx prop
+            glowColor={glowColor}
+            disableAnimations={isMobile}
+          >
+            {card.type === 'collab' && <CollabContent card={card} />}
+            {card.type === 'tech' && <TechContent card={card} />}
+            {card.type === 'globe' && <GlobeContent card={card} />}
+            {card.type === 'work' && (
+              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ fontWeight: 500, mb: 2 }}>Let&apos;s work together<br/>on your next project</Typography>
+                <MuiLink href={`mailto:${card.email}`} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 2, py: 1, bgcolor: '#000', color: '#fff', borderRadius: 2, fontSize: 12, fontWeight: 800, textDecoration: 'none', transition: 'background 0.2s', '&:hover': { bgcolor: '#333' } }}>
+                   <EmailIcon sx={{ fontSize: 14 }} /> {card.email}
+                </MuiLink>
+              </Box>
+            )}
+            {card.type === 'scoop' && (
+              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', zIndex: 10 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#9ca3af', opacity: 0.6, mb: 1 }}>
+                  <DashboardIcon fontSize="small" />
+                  <Typography variant="caption" sx={{ fontWeight: 800, letterSpacing: 1 }}>{card.title}</Typography>
+                </Box>
+                <Typography sx={{ fontWeight: 500, color: '#374151' }}>{card.content}</Typography>
+              </Box>
+            )}
+          </ParticleCard>
+        ))}
+      </Box>
     </Container>
   );
 };

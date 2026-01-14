@@ -5,7 +5,9 @@
       "@Theme": ["./src/styles/theme.js"],
       "@Navbar": ["./src/components/Navbar.js"],
       "@useBreakpoints": ["./src/hooks/useBreakpoints.js"],
-      "@SectionHero": ["./src/sections/home/SectionHero.js"]
+      "@SectionHero": ["./src/sections/home/SectionHero.js"],
+      "@SectionBento": ["./src/sections/home/SectionBento.js"],
+      "@CobeGlobe": ["./src/components/CobeGlobe.js"]
     }
   }
 }
