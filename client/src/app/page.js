@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import dynamic from "next/dynamic";
 
 const SectionHero = dynamic(() => import("@SectionHero"), { ssr: false });
+const SectionContact = dynamic(() => import("@/sections/home/SectionContact"), { ssr: false });
 
 export default function Home() {
 
@@ -41,7 +42,7 @@ export default function Home() {
       >
         <SectionHero />
       </Box>
-      {/* <Box sx={{ height: "600vh" }} /> */}
+      <SectionContact />
     </Box>
   );
 }

@@ -12,8 +12,15 @@ import {
 } from "@mui/material";
 import MenuIcon from "./icons/MenuIcon";
 import Image from "next/image";
+import Link from "next/link";
 import logo from "../../public/logo.svg";
 import useBreakpoint from "../hooks/useBreakpoints";
+
+const navItems = [
+  { label: "Projects", href: "/projects" },
+  { label: "Resume", href: "/resume" },
+  { label: "Contact", href: "/#contact" },
+];
 
 function Navbar() {
   const { isMdDown } = useBreakpoint();
@@ -29,7 +36,7 @@ function Navbar() {
   const [isInView, setIsInView] = useState(true);
 
   useEffect(() => {
-    scrollVelocity.onChange((latest) => {
+    const unsubscribe = scrollVelocity.on("change", (latest) => {
       if (latest > 0) {
         setIsScrollingBack(false);
         return;
@@ -39,15 +46,26 @@ function Navbar() {
         return;
       }
     });
+    return () => unsubscribe();
   }, [scrollVelocity]);
 
   useEffect(() => {
-    scrollY.onChange((latest) => setIsAtTop(latest <= 0));
+    const unsubscribe = scrollY.on("change", (latest) => setIsAtTop(latest <= 0));
+    return () => unsubscribe();
   }, [scrollY]);
 
   useEffect(() => {
     setIsInView(isScrollingBack || isAtTop);
   }, [isScrollingBack, isAtTop]);
+
+  const handleContactClick = (e) => {
+    const contactEl = document.getElementById("contact");
+    if (contactEl) {
+      e.preventDefault();
+      setDrawerOpen(false);
+      contactEl.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <Box sx={{ mt: 0, py: { xs: 0, md: "10px" }, width: "100%", position: 'relative', zIndex: 10 }}>
@@ -85,58 +103,66 @@ function Navbar() {
             pb: { xs: "10px", md: "10px" },
           }}
         >
-          <Box
-            sx={{
-              position: "relative",
-              width: { xs: "100px", sm: "105px", md: "110px" }, 
-              height: { xs: "36px", sm: "38px", md: "40px" }, 
-            }}
-          >
-            <Image
-              src={logo}
-              alt="MD.AT logo"
-              fill
-              style={{
-                objectFit: "contain",
-                objectPosition: "left center",
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <Box
+              sx={{
+                position: "relative",
+                width: { xs: "100px", sm: "105px", md: "110px" }, 
+                height: { xs: "36px", sm: "38px", md: "40px" }, 
               }}
-              priority
-            />
-          </Box>
+            >
+              <Image
+                src={logo}
+                alt="MD.AT logo"
+                fill
+                style={{
+                  objectFit: "contain",
+                  objectPosition: "left center",
+                }}
+                priority
+              />
+            </Box>
+          </Link>
         </Box>
 
+        {/* Desktop nav links */}
         <Box
           sx={{
-            // zIndex: 1,
             display: { xs: "none", md: "flex" },
             alignItems: "center",
             pt: "6px",
             pb: "6px",
           }}
         >
-          {["Projects", "Resume", "Contact"].map((item) => (
-            <Typography
-              key={item}
-              sx={{
-                display: "inline-block",
-                position: "relative",
-                ml: "40px",
-                px: "20px",
-                py: "10px",
-                fontFamily: "Manrope, sans-serif",
-                fontSize: { xs: "18px", md: "24px" },
-                fontWeight: 400,
-                lineHeight: 1.5,
-                color: "#000",
-                cursor: "pointer",
-                transition: "color 0.3s ease",
-                "&:hover": {
-                  color: "#666",
-                },
-              }}
+          {navItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={item.label === "Contact" ? handleContactClick : undefined}
+              style={{ textDecoration: 'none' }}
             >
-              {item}
-            </Typography>
+              <Typography
+                sx={{
+                  display: "inline-block",
+                  position: "relative",
+                  ml: "40px",
+                  px: "20px",
+                  py: "10px",
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: { xs: "18px", md: "24px" },
+                  fontWeight: 400,
+                  lineHeight: 1.5,
+                  color: "#000",
+                  cursor: "pointer",
+                  transition: "color 0.3s ease",
+                  "&:hover": {
+                    color: "#666",
+                  },
+                }}
+              >
+                {item.label}
+              </Typography>
+            </Link>
           ))}
         </Box>
 
@@ -151,18 +177,29 @@ function Navbar() {
             onClose={() => setDrawerOpen(false)}
           >
             <List sx={{ width: "200px" }}>
-              {["Projects", "Resume", "Contact"].map((item) => (
+              {navItems.map((item) => (
                 <ListItem
-                  button
-                  key={item}
+                  key={item.label}
+                  component={Link}
+                  href={item.href}
+                  onClick={(e) => {
+                    if (item.label === "Contact") {
+                      handleContactClick(e);
+                    } else {
+                      setDrawerOpen(false);
+                    }
+                  }}
                   sx={{
                     px: 3,
                     py: 2,
                     fontSize: { xs: "16px", sm: "18px", md: "20px" },
                     fontFamily: "Manrope, sans-serif",
+                    color: "#000",
+                    textDecoration: "none",
+                    cursor: "pointer",
                   }}
                 >
-                  {item}
+                  {item.label}
                 </ListItem>
               ))}
             </List>

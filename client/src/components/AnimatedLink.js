@@ -5,21 +5,19 @@ import { Box, Link } from "@mui/material";
 import { motion, useAnimation } from "framer-motion";
 
 export default function AnimatedLink({ href, children }) {
+  const isExternal = href && (href.startsWith("http") || href.startsWith("mailto:"));
+
   // 1. Create the animation controls
   const controls = useAnimation();
 
   // 2. Define the hover handlers
   const handleMouseEnter = () => {
-    // Instantly reset to the left side (invisible) just in case
     controls.set({ x: "-102%" }); 
-    // Animate to the visible center
     controls.start({ x: "0%" });
   };
 
   const handleMouseLeave = async () => {
-    // Animate off to the RIGHT side
     await controls.start({ x: "102%" });
-    // Once that animation finishes, instantly reset back to LEFT (invisible)
     controls.set({ x: "-102%" });
   };
 
@@ -27,8 +25,7 @@ export default function AnimatedLink({ href, children }) {
     <Link
       href={href}
       underline="none"
-      // Remove 'component={motion.a}' here to avoid conflict with manual handlers
-      // We attach standard React event listeners instead
+      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       sx={{
