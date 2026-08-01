@@ -278,7 +278,7 @@ function SectionHero() {
           {/* Email Group */}
           <Box sx={{ alignSelf: { xs: "flex-start", md: "center" } }}>
             <AnimatedLink href="mailto:anastnazz@gmail.com">
-              anastnazz@gmail.com
+              thottassery.anas@gmail.com
             </AnimatedLink>
           </Box>
         </Box>

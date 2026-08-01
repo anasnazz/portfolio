@@ -9,21 +9,45 @@ const SectionContact = dynamic(() => import("@/sections/home/SectionContact"), {
 export default function Home() {
 
   useEffect(() => {
-    if (window.innerWidth < 600) return;
-
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
 
-    const navbarHeight = 10;
+    // If Navbar is handling a scroll-to-contact, skip the scroll-past-navbar
+    const shouldScrollToContact =
+      sessionStorage.getItem("scrollToContact") === "true" ||
+      window.location.hash === "#contact";
 
-    setTimeout(() => {
-      window.scrollTo({
-        top: navbarHeight,
-        behavior: "instant" 
-      });
-    }, 10);
+    if (shouldScrollToContact) {
+      sessionStorage.removeItem("scrollToContact");
+      return; // Navbar handles the contact scroll directly
+    }
 
+    // Default: scroll past the navbar so "hello" starts at the top
+    const isMobile = window.innerWidth < 900;
+    const scrollTarget = isMobile ? 64 : 100;
+
+    let frameId;
+    let attempts = 0;
+
+    const tryScroll = () => {
+      attempts++;
+      const canScroll =
+        document.documentElement.scrollHeight >
+        window.innerHeight + scrollTarget;
+
+      if (canScroll || attempts >= 100) {
+        window.scrollTo({ top: scrollTarget, behavior: "instant" });
+      } else {
+        frameId = requestAnimationFrame(tryScroll);
+      }
+    };
+
+    frameId = requestAnimationFrame(tryScroll);
+
+    return () => {
+      if (frameId) cancelAnimationFrame(frameId);
+    };
   }, []);
 
   return (

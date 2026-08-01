@@ -13,6 +13,7 @@ import {
 import MenuIcon from "./icons/MenuIcon";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import logo from "../../public/logo.svg";
 import useBreakpoint from "../hooks/useBreakpoints";
 
@@ -29,6 +30,8 @@ function Navbar() {
 
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isScrollingBack, setIsScrollingBack] = useState(false);
@@ -59,11 +62,32 @@ function Navbar() {
   }, [isScrollingBack, isAtTop]);
 
   const handleContactClick = (e) => {
+    e.preventDefault();
+    setDrawerOpen(false);
+
     const contactEl = document.getElementById("contact");
+
     if (contactEl) {
-      e.preventDefault();
-      setDrawerOpen(false);
+      // Element exists on current page — just scroll
       contactEl.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // Navigate to home, then poll for #contact from the Navbar
+      // (Navbar lives in the layout and persists across navigations)
+      sessionStorage.setItem("scrollToContact", "true");
+      router.push("/");
+
+      let attempts = 0;
+      const waitForContact = () => {
+        attempts++;
+        const el = document.getElementById("contact");
+        if (el) {
+          // Brief delay to let the page finish its initial scroll
+          setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 300);
+        } else if (attempts < 200) {
+          requestAnimationFrame(waitForContact);
+        }
+      };
+      requestAnimationFrame(waitForContact);
     }
   };
 
