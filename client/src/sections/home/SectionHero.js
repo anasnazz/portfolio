@@ -271,7 +271,7 @@ function SectionHero() {
             }}
           >
             <AnimatedLink href="https://instagram.com/anas.nazz">Instagram</AnimatedLink>
-            <AnimatedLink href="https://www.linkedin.com/in/anas-nazz">LinkedIn</AnimatedLink>
+            <AnimatedLink href="https://www.linkedin.com/in/anasthottassery">LinkedIn</AnimatedLink>
             <AnimatedLink href="https://github.com/anasthottassery">GitHub</AnimatedLink>
           </Box>
 
