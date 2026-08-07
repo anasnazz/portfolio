@@ -2,7 +2,7 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@Theme": ["./src/styles/theme.js"],
+      "@Theme": ["./src/theme.js"],
       "@Navbar": ["./src/components/Navbar.js"],
       "@useBreakpoints": ["./src/hooks/useBreakpoints.js"],
       "@SectionHero": ["./src/sections/home/SectionHero.js"]

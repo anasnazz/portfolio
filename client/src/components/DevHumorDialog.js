@@ -134,7 +134,8 @@ export default function DevHumorDialog() {
               <br />
               <Box component="span" sx={{ color: '#569cd6' }}>&gt; estimated_time:</Box>{' '}
               <Box component="span" sx={{ color: '#ce9178' }}>
-                "Between 5 minutes and 5 years"
+                {/* FIXED: Replaced " with &quot; */}
+                &quot;Between 5 minutes and 5 years&quot;
               </Box>
             </Typography>
 
@@ -149,7 +150,8 @@ export default function DevHumorDialog() {
                   '&:hover': { backgroundColor: '#1177bb' }
                 }}
               >
-                git commit -m "ignore"
+                {/* FIXED: Replaced " with &quot; */}
+                git commit -m &quot;ignore&quot;
               </Button>
             </Box>
           </TerminalContent>

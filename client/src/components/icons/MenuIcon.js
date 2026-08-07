@@ -24,7 +24,7 @@ export default function MenuIcon({ color = "black", size = 32, ...props }) {
         d="M4 12H22"
         stroke={color}
         strokeWidth="2"
-        strokeLinecap="butt" // Changed
+        strokeLinecap="butt"
         strokeLinejoin="miter"
       />
       
@@ -33,7 +33,7 @@ export default function MenuIcon({ color = "black", size = 32, ...props }) {
         d="M11 18H22"
         stroke={color}
         strokeWidth="2"
-        strokeLinecap="butt" // Changed
+        strokeLinecap="butt"
         strokeLinejoin="miter"
       />
     </svg>

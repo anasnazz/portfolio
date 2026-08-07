@@ -1,3 +1,5 @@
+'use client';
+
 import { useTheme, useMediaQuery } from '@mui/material';
 
 export default function useBreakpoint() {
