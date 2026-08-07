@@ -35,7 +35,7 @@ function SectionHero() {
         maxWidth: "1170px",
         marginLeft: "auto",
         marginRight: "auto",
-        padding: { xs: "3rem 20px", md: "1.5rem 20px" },
+        padding: { xs: "3rem 20px 1rem", md: "1.5rem 20px" },
         zIndex: 0,
       }}
     >
@@ -251,7 +251,7 @@ function SectionHero() {
         </Box>
         <Box
           sx={{
-            padding: "3rem 0px",
+            padding: { xs: "1.5rem 0px 0px", md: "3rem 0px" },
             maxWidth: "1170px",
             margin: "0 auto",
             width: "100%",
@@ -277,7 +277,7 @@ function SectionHero() {
 
           {/* Email Group */}
           <Box sx={{ alignSelf: { xs: "flex-start", md: "center" } }}>
-            <AnimatedLink href="mailto:anastnazz@gmail.com">
+            <AnimatedLink href="mailto:thottassery.anas@gmail.com">
               thottassery.anas@gmail.com
             </AnimatedLink>
           </Box>
